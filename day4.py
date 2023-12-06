@@ -1,5 +1,6 @@
 import unittest
 from utils import read_input
+from collections import deque
 
 cards = [
     'Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53',
@@ -16,7 +17,6 @@ def calculate_points(cards):
     for card in cards:
         parts = card.split("|")
         one_parts = parts[0].split(":")
-        card_number = one_parts[0]
         winners = list((int(w) for w in one_parts[1].split(" ") if len(w) > 0))
         candidates = list((int(c) for c in parts[1].split(" ") if len(c) > 0))
         wins = list(set(winners).intersection(candidates))
@@ -28,11 +28,42 @@ def calculate_points(cards):
             else:
                 point = point + point
         total_points += point
-
-        print(card_number, "winners: ", winners,
-              " candidares: ", candidates, " wins: ", wins, " point: ", point)
-
     return total_points
+
+
+def calculate_wins(cards):
+    results = []
+    for idx in range(len(cards)):
+        card = cards[idx]
+        parts = card.split("|")
+        one_parts = parts[0].split(":")
+        winners = list((int(w) for w in one_parts[1].split(" ") if len(w) > 0))
+        candidates = list((int(c) for c in parts[1].split(" ") if len(c) > 0))
+        wins = list(set(winners).intersection(candidates))
+        results.append([idx, len(wins)])
+    return results
+
+
+def recr(w, wins, instances):
+    idx = w[0]
+    copies = w[1]
+    instances.append(w)
+
+    if copies > 0:
+        start = idx + 1
+        end = idx + copies + 1
+        for cw in wins[start:end]:
+            recr(cw, wins, instances=instances)
+
+
+def calculate_instances(cards):
+    wins = calculate_wins(cards)
+    instances = []
+
+    for w in wins:
+        recr(w, wins=wins, instances=instances)
+
+    return len(instances)
 
 
 class TestDay4(unittest.TestCase):
@@ -44,6 +75,16 @@ class TestDay4(unittest.TestCase):
         cards = read_input("day4.txt")
         p = calculate_points(cards)
         self.assertEqual(p, 21138)
+
+    def test_part2_sample(self):
+        inst = calculate_instances(cards=cards)
+        self.assertEqual(inst, 30)
+
+    def test_part2_solution(self):
+        cards = read_input("day4.txt")
+        self.assertEqual(len(cards), 198)
+        inst = calculate_instances(cards=cards)
+        self.assertEqual(inst, 7185540)
 
 
 if __name__ == "__main__":
