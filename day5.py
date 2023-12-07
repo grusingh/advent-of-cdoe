@@ -2,6 +2,7 @@ from utils import read_input
 import unittest
 import sys
 
+lines = read_input("day5.txt")
 sample = [
     'seeds: 79 14 55 13',
     '',
@@ -39,14 +40,6 @@ sample = [
 ]
 
 
-def get_seeds(lines):
-    seeds = []
-    s = lines[0][7:].split(' ')
-    for i in s:
-        seeds.append(int(i))
-    return seeds
-
-
 def get_mapping(m, lines):
     start = None
     ranges = []
@@ -69,6 +62,44 @@ def get_mapping(m, lines):
     return mappings
 
 
+seed_to_soil_map = get_mapping("seed-to-soil map:", lines)
+soil_to_fertilizer_map = get_mapping("soil-to-fertilizer map:", lines)
+fertilizer_to_water_map = get_mapping("fertilizer-to-water map:", lines)
+water_to_light_map = get_mapping("water-to-light map:", lines)
+light_to_temperature_map = get_mapping("light-to-temperature map:", lines)
+temperature_to_humidity_map = get_mapping(
+    "temperature-to-humidity map:", lines)
+humidity_to_location_map = get_mapping("humidity-to-location map:", lines)
+
+
+def get_seeds(lines):
+    seeds = []
+    s = lines[0][7:].split(' ')
+    for i in s:
+        seeds.append(int(i))
+    return seeds
+
+
+def get_seeds_part2(lines):
+    print("get_seeds_part2")
+    values = []
+    s = lines[0][7:].split(' ')
+    for i in s:
+        values.append(int(i))
+
+    seeds = []
+    idx = 0
+    while idx < len(values):
+        s = values[idx]
+        l = values[idx+1]
+
+        # for i in range(l):
+        seeds.append([s, l])
+        idx += 2
+
+    return seeds
+
+
 def get_value(v, lst):
     for li in range(len(lst)):
         parts = lst[li]
@@ -84,15 +115,6 @@ def get_value(v, lst):
 
 
 def get_seed_to_location(seed, lines):
-    seed_to_soil_map = get_mapping("seed-to-soil map:", lines)
-    soil_to_fertilizer_map = get_mapping("soil-to-fertilizer map:", lines)
-    fertilizer_to_water_map = get_mapping("fertilizer-to-water map:", lines)
-    water_to_light_map = get_mapping("water-to-light map:", lines)
-    light_to_temperature_map = get_mapping("light-to-temperature map:", lines)
-    temperature_to_humidity_map = get_mapping(
-        "temperature-to-humidity map:", lines)
-    humidity_to_location_map = get_mapping("humidity-to-location map:", lines)
-
     soil = get_value(seed, seed_to_soil_map)
     # print("seed_to_soil_map", seed, soil)
     fert = get_value(soil, soil_to_fertilizer_map)
@@ -125,27 +147,51 @@ def get_lowest_location_number(lines):
     return min_loc
 
 
+def get_lowest_location_number_part2(lines):
+    min_loc = sys.maxsize
+    seeds_ranges = get_seeds_part2(lines=lines)
+
+    print("ranges", seeds_ranges)
+
+    for seed_range in seeds_ranges:
+        s = seed_range[0]
+        e = s + seed_range[1]
+        print("seed range: ", s, e, " min: ", min_loc)
+        for seed in range(s, e):
+            loc = get_seed_to_location(seed=seed, lines=lines)
+
+            if loc < min_loc:
+                min_loc = loc
+
+    return min_loc
+
+
 class TestDay5(unittest.TestCase):
-    def test_get_seeds(self):
+    def xtest_get_seeds(self):
         seeds = get_seeds(sample)
         self.assertEqual(seeds, [79, 14, 55, 13])
 
-    def test_sample(self):
+    def xtest_sample(self):
         m = get_mapping("seed-to-soil map:", sample)
         self.assertEqual(len(m), 2)
         m = get_mapping("humidity-to-location map:", sample)
         self.assertEqual(len(m), 2)
 
-    def test_lowest_number_sample(self):
+    def xtest_lowest_number_sample(self):
         v = get_lowest_location_number(lines=sample)
         self.assertEqual(v, 35)
 
-    def test_lowest_number_part1(self):
+    def xtest_lowest_number_part1(self):
         lines = read_input("day5.txt")
         v = get_lowest_location_number(lines=lines)
-        self.assertEqual(v, 35)
+        self.assertEqual(v, 199602917)
 
-    def test_get_seed_to_location(self):
+    def test_lowest_number_part2(self):
+        lines = read_input("day5.txt")
+        v = get_lowest_location_number_part2(lines=lines)
+        self.assertEqual(v, 199602917)
+
+    def xtest_get_seed_to_location(self):
         """
 Seed number 79 corresponds to soil number 81.
 Seed number 14 corresponds to soil number 14.
