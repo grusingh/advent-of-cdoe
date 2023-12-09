@@ -37,16 +37,15 @@ def get_data(lines):
 def get_hops(lines):
     (steps, nodes) = get_data(lines=lines)
     hops = 0
-    key = list(nodes)[0]
+    key = "AAA"
     step_idx = 0
-    # print("start key:", key)
+
     while True:
         idx = 0 if steps[step_idx] == "L" else 1
         key = nodes[key][idx]
         hops += 1
         step_idx += 1
 
-        # print("step: ", step_idx, " key: ", key)
         if key == "ZZZ":
             break
 
@@ -57,7 +56,7 @@ def get_hops(lines):
 
 
 class Test(unittest.TestCase):
-    def xtest_case(self):
+    def test_case(self):
         (k, v) = get_data(sample1)
         self.assertEqual(k, "RL")
         self.assertEqual(
@@ -84,7 +83,7 @@ class Test(unittest.TestCase):
     def test_get_hops_part1_solution(self):
         lines = read_input("day8.txt")
         h = get_hops(lines)
-        self.assertEqual(h, 6)  # 11567
+        self.assertEqual(h, 16409)
 
 
 if __name__ == "__main__":
